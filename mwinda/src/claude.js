@@ -1,39 +1,33 @@
-const Anthropic = require('@anthropic-ai/sdk');
+const Groq = require('groq-sdk');
 const MWINDA_SYSTEM_PROMPT = require('./mwinda_prompt');
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// Mémoire de conversation par utilisateur (en RAM, simple pour démarrer)
 const conversations = new Map();
-
-const MAX_HISTORY = 10; // nb de tours max gardés en mémoire
+const MAX_HISTORY = 10;
 
 async function askMwinda(userId, userMessage) {
-  // Récupérer ou créer l'historique de l'utilisateur
   if (!conversations.has(userId)) {
     conversations.set(userId, []);
   }
 
   const history = conversations.get(userId);
-
-  // Ajouter le message de l'utilisateur
   history.push({ role: 'user', content: userMessage });
 
-  // Tronquer si trop long
   if (history.length > MAX_HISTORY * 2) {
-    history.splice(0, 2); // supprimer le plus vieux tour
+    history.splice(0, 2);
   }
 
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
+  const response = await client.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
     max_tokens: 1024,
-    system: MWINDA_SYSTEM_PROMPT,
-    messages: history,
+    messages: [
+      { role: 'system', content: MWINDA_SYSTEM_PROMPT },
+      ...history,
+    ],
   });
 
-  const assistantMessage = response.content[0].text;
-
-  // Sauvegarder la réponse dans l'historique
+  const assistantMessage = response.choices[0].message.content;
   history.push({ role: 'assistant', content: assistantMessage });
 
   return assistantMessage;
