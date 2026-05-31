@@ -1,7 +1,7 @@
 const Groq = require('groq-sdk');
 const MWINDA_SYSTEM_PROMPT = require('./mwinda_prompt');
 
-const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
 
 const conversations = new Map();
 const MAX_HISTORY = 10;
