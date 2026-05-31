@@ -9,7 +9,7 @@ const {
   WHATSAPP_VERIFY_TOKEN,
   WHATSAPP_TOKEN,
   WHATSAPP_PHONE_NUMBER_ID,
-  PORT = 3000,
+  PORT = process.env.PORT || 3000,,
 } = process.env;
 
 // ─── Vérification du webhook Meta (une seule fois au départ) ───────────────
